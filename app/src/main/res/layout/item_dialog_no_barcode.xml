@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:layout_margin="16dp"
+    android:orientation="vertical"
+    app:cardCornerRadius="20dp"
+    android:background="@drawable/dialog_bg">
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/size_16dp"
+        android:gravity="center"
+        android:paddingStart="@dimen/size_16dp"
+        android:paddingTop="@dimen/size_8dp"
+        android:paddingEnd="@dimen/size_16dp"
+        android:paddingBottom="@dimen/size_8dp"
+        android:text="Title Dialog"
+        android:textColor="#333333"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/tv_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/size_8dp"
+        android:layout_marginBottom="@dimen/size_26dp"
+        android:gravity="center"
+        android:paddingStart="@dimen/size_16dp"
+        android:paddingEnd="@dimen/size_16dp"
+        android:text="Message Dialog"
+        android:textAlignment="center"
+        android:textSize="13sp" />
+
+    <Button
+        android:id="@+id/btn_yes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Yes"
+        android:textSize="14sp"
+        android:layout_margin="@dimen/size_8dp"/>
+
+
+</LinearLayout>
