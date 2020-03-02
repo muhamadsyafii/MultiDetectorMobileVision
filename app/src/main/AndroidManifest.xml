@@ -21,9 +21,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="dev.syafii.scanbarcode.ResultBarcodeActivity"></activity>
+        <activity android:name="dev.syafii.scanbarcode.controller.ResultBarcodeActivity"></activity>
         <activity android:name="dev.syafii.scanbarcode.ScanBarcodeActivity" />
-        <activity android:name="dev.syafii.scanbarcode.BarcodeActivity">
+        <activity android:name="dev.syafii.scanbarcode.controller.BarcodeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

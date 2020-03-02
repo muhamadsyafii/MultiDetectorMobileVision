@@ -1,4 +1,4 @@
-package dev.syafii.scanbarcode;
+package dev.syafii.scanbarcode.controller;
 
 import android.graphics.Canvas;
 import android.graphics.Color;

@@ -1,4 +1,4 @@
-package dev.syafii.scanbarcode;
+package dev.syafii.scanbarcode.controller;
 
 import android.os.Bundle;
 import android.view.View;
@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.syafii.scanbarcode.R;
 
 import dev.syafii.scanbarcode.db.BarcodeApp;
+import dev.syafii.scanbarcode.util.Constant;
 
 public class ResultBarcodeActivity extends AppCompatActivity {
 
@@ -26,7 +27,7 @@ public class ResultBarcodeActivity extends AppCompatActivity {
         tvResult = findViewById(R.id.result);
         btnRemove = findViewById(R.id.clearApp);
 
-        tvResult.setText(BarcodeApp.getBarcode());
+        tvResult.setText(barcodeApp.getString(Constant.BARCODE));
         btnRemove.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -15,7 +15,7 @@ import com.syafii.scanbarcode.R;
 
 import java.util.Objects;
 
-import dev.syafii.scanbarcode.ResultBarcodeActivity;
+import dev.syafii.scanbarcode.controller.ResultBarcodeActivity;
 
 public class CustomDialog {
     public void showDialogBarcode(final Activity activity, String title, String message,
@@ -48,8 +48,6 @@ public class CustomDialog {
         dialogNo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                ActivityUtils.openActivity(activity, BarcodeActivity.class);
-//                activity.finish();
                 dialog.dismiss();
             }
         });
@@ -87,8 +85,6 @@ public class CustomDialog {
         dialogNo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                ActivityUtils.openActivity(activity, ScanBarcodeActivity.class);
-//                activity.finish();
                 dialog.dismiss();
             }
         });

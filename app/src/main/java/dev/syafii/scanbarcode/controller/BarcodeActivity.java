@@ -1,4 +1,4 @@
-package dev.syafii.scanbarcode;
+package dev.syafii.scanbarcode.controller;
 
 import android.Manifest;
 import android.app.Activity;
@@ -7,9 +7,13 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,10 +23,13 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
+import com.google.android.gms.vision.MultiDetector;
 import com.google.android.gms.vision.MultiProcessor;
 import com.google.android.gms.vision.Tracker;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
+import com.google.android.gms.vision.face.Face;
+import com.google.android.gms.vision.face.FaceDetector;
 import com.google.android.material.snackbar.Snackbar;
 import com.syafii.scanbarcode.R;
 
@@ -31,7 +38,9 @@ import java.io.IOException;
 import dev.syafii.scanbarcode.camera.CameraSourcePreview;
 import dev.syafii.scanbarcode.camera.GraphicOverlay;
 import dev.syafii.scanbarcode.db.BarcodeApp;
+import dev.syafii.scanbarcode.util.Constant;
 import dev.syafii.scanbarcode.util.CustomDialog;
+import dev.syafii.scanbarcode.util.ImageUtils;
 import es.dmoral.toasty.Toasty;
 
 public class BarcodeActivity extends AppCompatActivity {
@@ -43,17 +52,26 @@ public class BarcodeActivity extends AppCompatActivity {
     private CameraSource mCameraSource = null;
     private CameraSourcePreview mPreview;
     private GraphicOverlay mGraphicOverlay;
-    BarcodeApp barcodeApp;
+    BarcodeApp preference;
+    Button btnSubmit;
+
+    private Boolean isAnyFace = false;
+    private Boolean isFaceDetectionAvailable = false;
+
+    private Boolean isAnyBarcode = false;
+    private Boolean isBarcodeDetectionAvailable = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_barcode);
-
+        btnSubmit = findViewById(R.id.btn_submit);
         mPreview = (CameraSourcePreview) findViewById(R.id.preview);
-        mGraphicOverlay = (GraphicOverlay) findViewById(R.id.barcodeOverplay);
-        barcodeApp = new BarcodeApp(this);
+        mGraphicOverlay = (GraphicOverlay) findViewById(R.id.previewOverlay);
+        preference = new BarcodeApp(this);
         checkPermission();
+
     }
 
     public void checkPermission() {
@@ -97,6 +115,13 @@ public class BarcodeActivity extends AppCompatActivity {
 
     private void createCameraSource() {
         Context context = getApplicationContext();
+        // A face detector is created to track faces.  An associated multi-processor instance
+        // is set to receive the face detection results, track the faces, and maintain graphics for
+        // each face on screen.  The factory is used by the multi-processor to create a separate
+        // tracker instance for each face.
+        FaceDetector faceDetector = new FaceDetector.Builder(context).build();
+        faceDetector.setProcessor(new MultiProcessor.Builder<>(new GraphicFaceTrackerFactory())
+                .build());
         // A barcode detector is created to track barcodes.  An associated multi-processor instance
         // is set to receive the barcode detection results, track the barcodes, and maintain
         // graphics for each barcode on screen.  The factory is used by the multi-processor to
@@ -108,6 +133,12 @@ public class BarcodeActivity extends AppCompatActivity {
         detector.setProcessor(
                 new MultiProcessor.Builder<>(new GraphicBarcodeTrackerFactory())
                         .build());
+
+        MultiDetector multiDetector = new MultiDetector.Builder()
+                .add(faceDetector)
+                .add(detector)
+                .build();
+
         if (!detector.isOperational()) {
             // Note: The first time that an app using face API is installed on a device, GMS will
             // download a native library to the device in order to do detection.  Usually this
@@ -117,13 +148,25 @@ public class BarcodeActivity extends AppCompatActivity {
             // isOperational() can be used to check if the required native library is currently
             // available.  The detector will automatically become operational once the library
             // download completes on device.
+            isBarcodeDetectionAvailable = false;
             Log.w(TAG, "Barcode detector dependencies are not yet available.");
-            Toast.makeText(BarcodeActivity.this, "Face detector dependencies are not yet available.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(BarcodeActivity.this, "Barcode detector dependencies are not yet available.", Toast.LENGTH_SHORT).show();
         } else {
             Log.w(TAG, "Barcode detector available.");
+            isBarcodeDetectionAvailable = true;
         }
 
-        mCameraSource = new CameraSource.Builder(context, detector)
+        if (!faceDetector.isOperational()) {
+
+            isFaceDetectionAvailable = false;
+            Log.w(TAG, "Face detector dependencies are not yet available.");
+            Toast.makeText(BarcodeActivity.this, "Face detector dependencies are not yet available.", Toast.LENGTH_SHORT).show();
+        } else {
+            Log.w(TAG, "Face detector available.");
+            isFaceDetectionAvailable = true;
+        }
+
+        mCameraSource = new CameraSource.Builder(context, multiDetector)
                 .setRequestedPreviewSize(1920, 1080)
                 .setFacing(CameraSource.CAMERA_FACING_FRONT)
                 .setAutoFocusEnabled(true)
@@ -269,14 +312,17 @@ public class BarcodeActivity extends AppCompatActivity {
         @Override
         public void onNewItem(int barcodeId, final Barcode item) {
             mBarcodeGraphic.setId(barcodeId);
+            Log.i(TAG, "onNewItemBarcode: " + item.rawValue);
+
+            isAnyBarcode = true;
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     if (item.rawValue.equals("SG000004")) {
                         Log.e(TAG, "Result Valid : " + item.rawValue);
-                        CustomDialog dialog = new CustomDialog();
-                        dialog.showDialogBarcode(BarcodeActivity.this, "Dialog", "Your Barcode Valid ", "Yes", "No");
-                        barcodeApp.saveBarcode(item.rawValue);
+//                        CustomDialog dialog = new CustomDialog();
+//                        dialog.showDialogBarcode(BarcodeActivity.this, "Dialog", "Your Barcode Valid ", "Yes", "No");
+                        preference.saveString(Constant.BARCODE, item.rawValue);
                     } else {
                         Toasty.error(BarcodeActivity.this, "Sorry your barcode invalid", Toast.LENGTH_SHORT).show();
                         Log.e(TAG, "Result inValid : " + item.rawValue);
@@ -293,18 +339,18 @@ public class BarcodeActivity extends AppCompatActivity {
             mOverlay.add(mBarcodeGraphic);
             mBarcodeGraphic.updateItem(barcode);
 
+            isAnyBarcode = true;
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    for (int i = barcode.rawValue.length(); i <= 0; i++) {
-                        if (barcode.rawValue.equals("SG000004")) {
-                            Log.e(TAG, "Result Valid : " + barcode.rawValue);
-                            CustomDialog dialog = new CustomDialog();
-                            dialog.showDialogBarcode(BarcodeActivity.this, "Dialog", "Your Barcode Valid ", "Yes", "No");
-                        } else {
-                            Toasty.error(BarcodeActivity.this, "Sorry your barcode invalid", Toast.LENGTH_SHORT).show();
-                            Log.e(TAG, "Result inValid : " + barcode.rawValue);
-                        }
+                    if (barcode.rawValue.equals("SG000004")) {
+                        Log.e(TAG, "Result Valid : " + barcode.rawValue);
+//                        CustomDialog dialog = new CustomDialog();
+//                        dialog.showDialogBarcode(BarcodeActivity.this, "Dialog", "Your Barcode Valid ", "Yes", "No");
+                        preference.saveString(Constant.BARCODE, barcode.rawValue);
+                    } else {
+                        Toasty.error(BarcodeActivity.this, "Sorry your barcode invalid", Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "Result inValid : " + barcode.rawValue);
                     }
                 }
             });
@@ -319,31 +365,7 @@ public class BarcodeActivity extends AppCompatActivity {
         public void onMissing(final Detector.Detections<Barcode> detections) {
             mOverlay.remove(mBarcodeGraphic);
 
-//            activity.runOnUiThread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    Toasty.error(BarcodeActivity.this, "Sorry your barcode invalid", Toast.LENGTH_SHORT).show();
-//                    Log.e(TAG, "Result inValid onMissing : " + detections.getDetectedItems());
-//                }
-//            });
         }
-
-        /**
-         * Called when the barcode is assumed to be gone for good. Remove the graphic annotation from
-         * the overlay.
-         */
-//        @Override
-//        public void onDone() {
-//            mOverlay.remove(mBarcodeGraphic);
-//
-//            activity.runOnUiThread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    CustomDialog dialog = new CustomDialog();
-//                    dialog.showNoBarcodeDialog(activity, "Dialog", "There is no face. Try again...", "Yes");
-//                }
-//            });
-//        }
     }
 
     @Override
@@ -351,4 +373,136 @@ public class BarcodeActivity extends AppCompatActivity {
         CustomDialog dialogBack = new CustomDialog();
         dialogBack.showDialogBarcodeBack(BarcodeActivity.this, "Dialog", "Do you want to exit ?", "Yes", "No");
     }
+
+    //==============================================================================================
+    // Graphic Face Tracker
+    //==============================================================================================
+
+    /**
+     * Factory for creating a face tracker to be associated with a new face.  The multiprocessor
+     * uses this factory to create face trackers as needed -- one for each individual.
+     */
+    private class GraphicFaceTrackerFactory implements MultiProcessor.Factory<Face> {
+        @Override
+        public Tracker<Face> create(Face face) {
+            return new GraphicFaceTracker(mGraphicOverlay, BarcodeActivity.this);
+        }
+    }
+
+    /**
+     * Face tracker for each detected individual. This maintains a face graphic within the app's
+     * associated face overlay.
+     */
+    private class GraphicFaceTracker extends Tracker<Face> {
+        private GraphicOverlay mOverlay;
+        private FaceGraphic mFaceGraphic;
+        Activity activity;
+
+        GraphicFaceTracker(GraphicOverlay overlay, Activity activity) {
+            mOverlay = overlay;
+            this.activity = activity;
+            mFaceGraphic = new FaceGraphic(overlay);
+        }
+
+        /**
+         * Start tracking the detected face instance within the face overlay.
+         */
+        @Override
+        public void onNewItem(int faceId, Face item) {
+            mFaceGraphic.setId(faceId);
+
+            isAnyFace = true;
+
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Log.d(TAG, "is any face : " + isAnyFace);
+
+                    if (isAnyFace) {
+                        btnSubmit.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                captureFace();
+                            }
+                        });
+                    }
+                }
+            });
+
+
+        }
+
+        /**
+         * Update the position/characteristics of the face within the overlay.
+         */
+        @Override
+        public void onUpdate(FaceDetector.Detections<Face> detectionResults, Face face) {
+            mOverlay.add(mFaceGraphic);
+            mFaceGraphic.updateFace(face);
+            Log.e(TAG, "onUpdateFace: " + detectionResults);
+
+            isAnyFace = true;
+
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Log.d(TAG, "is any face : " + isAnyFace);
+
+                    if (isAnyFace) {
+                        btnSubmit.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                captureFace();
+                            }
+                        });
+                    }
+                }
+            });
+
+
+        }
+
+        /**
+         * Hide the graphic when the corresponding face was not detected.  This can happen for
+         * intermediate frames temporarily (e.g., if the face was momentarily blocked from
+         * view).
+         */
+        @Override
+        public void onMissing(FaceDetector.Detections<Face> detectionResults) {
+            mOverlay.remove(mFaceGraphic);
+
+        }
+
+        private void captureFace() {
+            mCameraSource.takePicture(null, new CameraSource.PictureCallback() {
+                @Override
+                public void onPictureTaken(byte[] bytes) {
+                    try {
+                        Log.d(TAG, "onPictureTaken running...");
+                        // convert byte array into bitmap
+                        Bitmap loadedImage = null;
+                        Bitmap rotatedBitmap = null;
+                        loadedImage = BitmapFactory.decodeByteArray(bytes, 0,
+                                bytes.length);
+
+                        Matrix rotateMatrix = new Matrix();
+                        rotateMatrix.postRotate(-90);
+                        rotatedBitmap = Bitmap.createBitmap(loadedImage, 0, 0,
+                                loadedImage.getWidth(), loadedImage.getHeight(),
+                                rotateMatrix, false);
+
+                        String imageString = ImageUtils.convert(rotatedBitmap);
+                        Log.i(TAG, "onPictureTaken: " + imageString);
+
+                        preference.saveString(Constant.FACE_RECOGNITION, imageString);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+    }
+
+
 }
