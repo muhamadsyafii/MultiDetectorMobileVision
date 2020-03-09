@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ScanBarcode</string>
+    <string name="app_name">RnD Detector Mobile Vision</string>
     <string name="ok">ok</string>
     <string name="permission_camera_rationale">permission camera rationale</string>
     <string name="no_camera_permission">no camera permission</string>

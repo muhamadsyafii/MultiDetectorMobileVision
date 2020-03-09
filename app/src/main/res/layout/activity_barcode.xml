@@ -37,30 +37,30 @@
                 android:layout_weight=".5" />
 
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight=".5"
-                android:background="@color/colorPrimary">
+<!--            <RelativeLayout-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:layout_weight="0.9"-->
+<!--                android:background="@color/colorPrimary">-->
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="@dimen/size_16dp"
-                    android:text="Rnd Barcode With Face Recognition"
-                    android:textColor="@android:color/white"
-                    android:textSize="@dimen/size_16sp" />
+<!--                <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_centerHorizontal="true"-->
+<!--                    android:layout_marginTop="@dimen/size_16dp"-->
+<!--                    android:text="Rnd Barcode With Face Recognition"-->
+<!--                    android:textColor="@android:color/white"-->
+<!--                    android:textSize="@dimen/size_16sp" />-->
 
-                <Button
-                    android:id="@+id/btn_submit"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:layout_marginStart="@dimen/size_50dp"
-                    android:layout_marginEnd="@dimen/size_50dp"
-                    android:text="Sumbit" />
-            </RelativeLayout>
+<!--                <Button-->
+<!--                    android:id="@+id/btn_submit"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_centerInParent="true"-->
+<!--                    android:layout_marginStart="@dimen/size_50dp"-->
+<!--                    android:layout_marginEnd="@dimen/size_50dp"-->
+<!--                    android:text="Sumbit" />-->
+<!--            </RelativeLayout>-->
 
         </LinearLayout>
 

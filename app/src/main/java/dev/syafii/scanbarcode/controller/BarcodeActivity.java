@@ -41,7 +41,6 @@ import dev.syafii.scanbarcode.db.BarcodeApp;
 import dev.syafii.scanbarcode.util.Constant;
 import dev.syafii.scanbarcode.util.CustomDialog;
 import dev.syafii.scanbarcode.util.ImageUtils;
-import es.dmoral.toasty.Toasty;
 
 public class BarcodeActivity extends AppCompatActivity {
     private String TAG = "BarcodeActivity";
@@ -66,7 +65,7 @@ public class BarcodeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_barcode);
-        btnSubmit = findViewById(R.id.btn_submit);
+//        btnSubmit = findViewById(R.id.btn_submit);
         mPreview = (CameraSourcePreview) findViewById(R.id.preview);
         mGraphicOverlay = (GraphicOverlay) findViewById(R.id.previewOverlay);
         preference = new BarcodeApp(this);
@@ -318,15 +317,15 @@ public class BarcodeActivity extends AppCompatActivity {
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (item.rawValue.equals("SG000004")) {
-                        Log.e(TAG, "Result Valid : " + item.rawValue);
-//                        CustomDialog dialog = new CustomDialog();
-//                        dialog.showDialogBarcode(BarcodeActivity.this, "Dialog", "Your Barcode Valid ", "Yes", "No");
-                        preference.saveString(Constant.BARCODE, item.rawValue);
-                    } else {
-                        Toasty.error(BarcodeActivity.this, "Sorry your barcode invalid", Toast.LENGTH_SHORT).show();
-                        Log.e(TAG, "Result inValid : " + item.rawValue);
-                    }
+//                    if (item.rawValue.equals("SG000004")) {
+//                        Log.e(TAG, "Result Valid : " + item.rawValue);
+////                        CustomDialog dialog = new CustomDialog();
+////                        dialog.showDialogBarcode(BarcodeActivity.this, "Dialog", "Your Barcode Valid ", "Yes", "No");
+//                        preference.saveString(Constant.BARCODE, item.rawValue);
+//                    } else {
+//                        Toasty.error(BarcodeActivity.this, "Sorry your barcode invalid", Toast.LENGTH_SHORT).show();
+//                        Log.e(TAG, "Result inValid : " + item.rawValue);
+//                    }
                 }
             });
         }
@@ -343,15 +342,15 @@ public class BarcodeActivity extends AppCompatActivity {
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (barcode.rawValue.equals("SG000004")) {
-                        Log.e(TAG, "Result Valid : " + barcode.rawValue);
-//                        CustomDialog dialog = new CustomDialog();
-//                        dialog.showDialogBarcode(BarcodeActivity.this, "Dialog", "Your Barcode Valid ", "Yes", "No");
-                        preference.saveString(Constant.BARCODE, barcode.rawValue);
-                    } else {
-                        Toasty.error(BarcodeActivity.this, "Sorry your barcode invalid", Toast.LENGTH_SHORT).show();
-                        Log.e(TAG, "Result inValid : " + barcode.rawValue);
-                    }
+//                    if (barcode.rawValue.equals("SG000004")) {
+//                        Log.e(TAG, "Result Valid : " + barcode.rawValue);
+////                        CustomDialog dialog = new CustomDialog();
+////                        dialog.showDialogBarcode(BarcodeActivity.this, "Dialog", "Your Barcode Valid ", "Yes", "No");
+//                        preference.saveString(Constant.BARCODE, barcode.rawValue);
+//                    } else {
+//                        Toasty.error(BarcodeActivity.this, "Sorry your barcode invalid", Toast.LENGTH_SHORT).show();
+//                        Log.e(TAG, "Result inValid : " + barcode.rawValue);
+//                    }
                 }
             });
         }
@@ -419,12 +418,12 @@ public class BarcodeActivity extends AppCompatActivity {
                     Log.d(TAG, "is any face : " + isAnyFace);
 
                     if (isAnyFace) {
-                        btnSubmit.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                captureFace();
-                            }
-                        });
+//                        btnSubmit.setOnClickListener(new View.OnClickListener() {
+//                            @Override
+//                            public void onClick(View view) {
+//                                captureFace();
+//                            }
+//                        });
                     }
                 }
             });
@@ -449,12 +448,12 @@ public class BarcodeActivity extends AppCompatActivity {
                     Log.d(TAG, "is any face : " + isAnyFace);
 
                     if (isAnyFace) {
-                        btnSubmit.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                captureFace();
-                            }
-                        });
+//                        btnSubmit.setOnClickListener(new View.OnClickListener() {
+//                            @Override
+//                            public void onClick(View view) {
+//                                captureFace();
+//                            }
+//                        });
                     }
                 }
             });
